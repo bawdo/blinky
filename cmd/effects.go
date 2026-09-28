@@ -8,6 +8,7 @@ import (
 
 	"github.com/bawdo/blinky/internal/app"
 	"github.com/bawdo/blinky/internal/colour"
+	"github.com/bawdo/blinky/internal/exitcode"
 	"github.com/bawdo/blinky/internal/settings"
 	"github.com/bawdo/blinky/internal/target"
 )
@@ -95,7 +96,10 @@ func newRepeatCmd(a *app.App, name, short string, period time.Duration, periodUs
 }
 
 func newMorphCmd(a *app.App) *cobra.Command {
-	var d time.Duration
+	var (
+		m    app.MorphOptions
+		from string
+	)
 	c := &cobra.Command{
 		Use:               "morph <colour>",
 		Short:             "Fade LEDs from their current colour to a new one",
@@ -103,11 +107,21 @@ func newMorphCmd(a *app.App) *cobra.Command {
 		ValidArgsFunction: colourCompleter(1),
 	}
 	c.Long = long(c.Short, target.Help(target.Group, target.Group), colourHelp,
-		"Ctrl-C stops it and turns the LEDs off. Left to finish, the LEDs stay on the new colour.")
+		"--from-colour sets the LEDs to a colour first. --loop fades back and forth between the two, "+
+			"one round trip per repeat.",
+		"Ctrl-C, or --duration running out, stops it and turns the LEDs off. "+
+			"Left to finish without --loop, the LEDs stay on the new colour; with --loop they turn off.")
 	t := addTargetFlags(c, a)
 	l := addLEDFlags(c)
-	durationFlag(c, &d, "duration", time.Second, "how long the fade takes")
+	colourFlag(c, &from, "from-colour", "start from this colour instead of what the LEDs show")
+	durationFlag(c, &m.Fade, "fade", time.Second, "how long one fade takes")
+	c.Flags().BoolVar(&m.Loop, "loop", false, "fade back and forth until stopped")
+	c.Flags().IntVar(&m.Repeats, "repeats", 0, "round trips with --loop, 0 for until stopped")
+	durationFlag(c, &m.Duration, "duration", 0, "stop after this long, 0 for no limit")
 	c.RunE = func(cmd *cobra.Command, args []string) error {
+		if cmd.Flags().Changed("repeats") && !m.Loop {
+			return exitcode.Invalid("--repeats can only be used with --loop")
+		}
 		set, err := l.settings()
 		if err != nil {
 			return err
@@ -116,7 +130,10 @@ func newMorphCmd(a *app.App) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		return a.Morph(cmd.Context(), t.request(), set, spec, app.MorphOptions{Fade: d})
+		if m.From, err = optionalColour(cmd, "from-colour", from); err != nil {
+			return err
+		}
+		return a.Morph(cmd.Context(), t.request(), set, spec, m)
 	}
 	return c
 }

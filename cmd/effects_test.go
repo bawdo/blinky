@@ -85,3 +85,48 @@ func TestDurationCompletion(t *testing.T) {
 		t.Errorf("offered a second colour: %v", got)
 	}
 }
+
+func TestMorphFromColourCommand(t *testing.T) {
+	ctl := twoSticks()
+	res := run(t, opts(ctl), "morph", "-d", "desk", "red", "--from-color", "lime", "--fade", "500ms")
+	if res.code != 0 {
+		t.Fatalf("exit %d err %q", res.code, res.err)
+	}
+	s := ctl.Stick("BS072777-3.0")
+	if f := s.Frames(); len(f) == 0 || f[0][0] != (blinkstick.RGB{G: 255}) {
+		t.Errorf("frames %v", f)
+	}
+	if !slices.Equal(s.Calls(), []string{"morph #ff0000 500ms"}) {
+		t.Errorf("calls %v", s.Calls())
+	}
+}
+
+func TestMorphLoopCommand(t *testing.T) {
+	ctl := twoSticks()
+	res := run(t, opts(ctl), "morph", "-d", "desk", "red", "--loop", "--fade", "100ms", "--repeats", "1")
+	if res.code != 0 {
+		t.Fatalf("exit %d err %q", res.code, res.err)
+	}
+	frames := ctl.Stick("BS072777-3.0").Frames()
+	if len(frames) != 11 || frames[10][0] != (blinkstick.RGB{}) {
+		t.Errorf("got %d frames, last %v", len(frames), frames[len(frames)-1])
+	}
+}
+
+func TestMorphRejectsRepeatsWithoutLoop(t *testing.T) {
+	if res := run(t, opts(twoSticks()), "morph", "-d", "desk", "red", "--repeats", "2"); res.code != 2 {
+		t.Errorf("exit %d, want 2", res.code)
+	}
+}
+
+func TestMorphHelpHidesColorSpelling(t *testing.T) {
+	help := run(t, opts(twoSticks()), "morph", "--help").out
+	for _, want := range []string{"--from-colour", "--fade", "--loop", "--repeats", "--duration"} {
+		if !strings.Contains(help, want) {
+			t.Errorf("help lacks %s:\n%s", want, help)
+		}
+	}
+	if strings.Contains(help, "from-color ") {
+		t.Errorf("help shows the color spelling:\n%s", help)
+	}
+}
