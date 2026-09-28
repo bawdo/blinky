@@ -53,6 +53,9 @@ func newRootCmd(opts app.Options) *cobra.Command {
 		newOffCmd(a),
 		newNameCmd(a),
 		newInfoBlockCmd(a),
+		newBlinkCmd(a),
+		newPulseCmd(a),
+		newMorphCmd(a),
 	)
 	applyHelpBareword(root)
 	return root
