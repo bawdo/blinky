@@ -24,6 +24,10 @@ blinky list                          # what is plugged in, and the ID to use for
 blinky colour red                    # the only stick goes red
 blinky colour -a red blue            # every stick: first half red, second half blue
 blinky pulse -d desk vivid           # breathe a random bright colour on the stick named desk
+blinky blink green --on-time 1s --off-time 2s          # lit 1s, dark 2s, three times
+blinky blink green --second-colour yellow --repeats 0  # green, yellow, until Ctrl-C
+blinky morph green --from-colour yellow                # fade yellow to green
+blinky morph green --from-colour yellow --loop         # back and forth until Ctrl-C
 blinky police -a --duration 30s      # red and blue for 30 seconds
 blinky disco -a                      # until Ctrl-C
 blinky off -a
@@ -59,9 +63,9 @@ evenly.
 | `info` | serial, model, firmware, manufacturer, product, name |
 | `colour [<colour>...]` | read LEDs, or set them. `--led <i>` for one LED |
 | `off` | turn LEDs off |
-| `blink <colour>` | `--period 1s --repeats 3` |
+| `blink <colour>` | `--period 1s --repeats 3`, `--on-time`, `--off-time`, `--second-colour <colour>` |
 | `pulse <colour>` | `--period 2s --repeats 3` |
-| `morph <colour>` | `--duration 1s` |
+| `morph <colour>` | `--fade 1s`, `--from-colour <colour>`, `--loop`, `--repeats 0` |
 | `disco [<colour>...]` | `--min-period 200ms --max-period 2s --max-gap 1s` |
 | `police` | `--period 1s`, `--alternate` |
 | `name [<name>]` | read or set a stick's name. `--clear` removes it |
@@ -69,9 +73,16 @@ evenly.
 | `completion <shell>` | shell completion script |
 | `version` | print the blinky version, commit and tag |
 
-Commands that write LEDs take `--brightness <0-100>` and `--inverse`. Most animated commands take
-`--duration` (0 means until stopped); `morph`'s `--duration` is how long the fade takes instead.
-Ctrl-C or `--duration` running out turns the LEDs off.
+Commands that write LEDs take `--brightness <0-100>` and `--inverse`. Animated commands take
+`--duration`, how long to run before stopping (0 means no limit). Ctrl-C or `--duration` running
+out turns the LEDs off.
+
+`morph` used to take `--duration` as its fade time. That is now `--fade`, and `--duration` means
+stop after, as everywhere else.
+
+`blink --on-time` and `--off-time` each default to half of `--period`. With `--second-colour`,
+one repeat is colour, off, second colour, off. `morph --loop` fades there and back once per
+repeat and turns the LEDs off when it finishes. `--from-color` and `--second-color` work too.
 Reads take `--json`. `name` and `info-block` write EEPROM, which wears out with heavy use.
 
 ## Shell completion
