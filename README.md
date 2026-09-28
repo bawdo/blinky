@@ -81,7 +81,8 @@ out turns the LEDs off.
 stop after, as everywhere else.
 
 `blink --on-time` and `--off-time` each default to half of `--period`. With `--second-colour`,
-one repeat is colour, off, second colour, off. `morph --loop` fades there and back once per
+one repeat is colour, off, second colour, off. Times are drawn in 20ms frames, so on and off
+times must be at least 20ms (off may be 0). `morph --loop` fades there and back once per
 repeat and turns the LEDs off when it finishes. `--from-color` and `--second-color` work too.
 Reads take `--json`. `name` and `info-block` write EEPROM, which wears out with heavy use.
 

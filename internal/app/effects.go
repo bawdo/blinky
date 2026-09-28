@@ -64,6 +64,16 @@ func (o BlinkOptions) times() (on, off time.Duration, err error) {
 	if o.Off != nil {
 		off = *o.Off
 	}
+	switch {
+	case on < effect.DefaultStep && o.On != nil:
+		return 0, 0, exitcode.Invalid("--on-time must be at least %v", effect.DefaultStep)
+	case on < effect.DefaultStep:
+		return 0, 0, exitcode.Invalid("--period must be at least %v", 2*effect.DefaultStep)
+	case off > 0 && off < effect.DefaultStep && o.Off != nil:
+		return 0, 0, exitcode.Invalid("--off-time must be 0 or at least %v", effect.DefaultStep)
+	case off > 0 && off < effect.DefaultStep:
+		return 0, 0, exitcode.Invalid("--period must be at least %v", 2*effect.DefaultStep)
+	}
 	return on, off, nil
 }
 

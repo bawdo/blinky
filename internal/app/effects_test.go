@@ -241,11 +241,20 @@ func TestBlinkValidates(t *testing.T) {
 		{Period: time.Second, Duration: -1},
 		{Period: time.Second, On: dur(0)},
 		{Period: time.Second, Off: dur(-1)},
+		{Period: 30 * ms, On: dur(10 * ms), Off: dur(10 * ms)},
 	}
 	for _, o := range bad {
 		if err := a.Blink(context.Background(), all, full, redSpec(), o); exitcode.From(err) != 2 {
 			t.Errorf("%+v: err %v", o, err)
 		}
+	}
+}
+
+func TestBlinkAllowsZeroOffAtMinimumPeriod(t *testing.T) {
+	a, _, _ := newTestApp(oneNano())
+	o := BlinkOptions{Period: 40 * ms, Off: dur(0), Repeats: 1}
+	if err := a.Blink(context.Background(), all, full, redSpec(), o); err != nil {
+		t.Fatalf("err %v", err)
 	}
 }
 

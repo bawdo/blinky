@@ -29,6 +29,7 @@ func newBlinkCmd(a *app.App) *cobra.Command {
 	c.Long = long(c.Short, target.Help(target.Group, target.Group), colourHelp,
 		"--on-time and --off-time each default to half of --period. With --second-colour, "+
 			"each repeat blinks the colour, then the second colour.",
+		"Times are drawn in 20ms frames, so on and off times must be at least 20ms (off may be 0).",
 		stopHelp)
 	t := addTargetFlags(c, a)
 	l := addLEDFlags(c)

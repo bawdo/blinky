@@ -44,6 +44,7 @@ func TestBlinkRejectsBadTimes(t *testing.T) {
 		{"blink", "-d", "desk", "red", "--on-time", "0s"},
 		{"blink", "-d", "desk", "red", "--off-time", "-1s"},
 		{"blink", "-d", "desk", "red", "--second-colour", "nope"},
+		{"blink", "-d", "desk", "red", "--period", "20ms"},
 	} {
 		if res := run(t, opts(twoSticks()), args...); res.code != 2 {
 			t.Errorf("%v: exit %d, want 2", args, res.code)
