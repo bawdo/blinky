@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"math"
 	"reflect"
 	"strings"
 	"testing"
@@ -134,6 +135,8 @@ func TestLimit(t *testing.T) {
 		{0, time.Second, 5 * time.Second, 5 * time.Second},
 		{3, time.Second, 2 * time.Second, 2 * time.Second},
 		{3, time.Second, 5 * time.Second, 3 * time.Second},
+		{math.MaxInt, time.Second, 0, 0},
+		{math.MaxInt, time.Second, 5 * time.Second, 5 * time.Second},
 	}
 	for _, tc := range cases {
 		if got := limit(tc.repeats, tc.cycle, tc.duration); got != tc.want {

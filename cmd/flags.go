@@ -104,9 +104,13 @@ func colourFlag(c *cobra.Command, p *string, name, usage string) {
 	_ = c.RegisterFlagCompletionFunc(name, colourCompleter(0))
 }
 
-// colourSpelling reads any flag spelt "color" as "colour".
+// colourSpelling reads a flag name ending in "-color" as ending in
+// "-colour" instead, so a flag such as --second-color still works.
 func colourSpelling(_ *pflag.FlagSet, name string) pflag.NormalizedName {
-	return pflag.NormalizedName(strings.ReplaceAll(name, "color", "colour"))
+	if strings.HasSuffix(name, "-color") {
+		name = strings.TrimSuffix(name, "-color") + "-colour"
+	}
+	return pflag.NormalizedName(name)
 }
 
 // optionalColour parses the colour flag name, or returns nil if it was not

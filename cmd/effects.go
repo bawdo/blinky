@@ -115,7 +115,7 @@ func newMorphCmd(a *app.App) *cobra.Command {
 	l := addLEDFlags(c)
 	colourFlag(c, &from, "from-colour", "start from this colour instead of what the LEDs show")
 	durationFlag(c, &m.Fade, "fade", time.Second, "how long one fade takes")
-	c.Flags().BoolVar(&m.Loop, "loop", false, "fade back and forth until stopped")
+	c.Flags().BoolVar(&m.Loop, "loop", false, "fade back and forth, see --repeats and --duration")
 	c.Flags().IntVar(&m.Repeats, "repeats", 0, "round trips with --loop, 0 for until stopped")
 	durationFlag(c, &m.Duration, "duration", 0, "stop after this long, 0 for no limit")
 	c.RunE = func(cmd *cobra.Command, args []string) error {

@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"math"
 	"math/rand/v2"
 	"time"
 
@@ -137,8 +138,13 @@ func (a *App) render(ctx context.Context, infos []stick.Info, set settings.Setti
 }
 
 // limit is how long a run of repeats cycles lasts, capped by duration.
-// 0 on either side means no limit from that side.
+// 0 on either side means no limit from that side. An absurd repeats count
+// that would overflow the multiplication is treated as no limit from that
+// side, rather than wrapping to a short or negative duration.
 func limit(repeats int, cycle, duration time.Duration) time.Duration {
+	if repeats > 0 && cycle > 0 && int64(repeats) > math.MaxInt64/int64(cycle) {
+		return duration
+	}
 	l := time.Duration(repeats) * cycle
 	if l == 0 || (duration > 0 && duration < l) {
 		return duration
