@@ -2,19 +2,27 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"os/signal"
 	"syscall"
 
 	"github.com/spf13/cobra"
 
+	"github.com/bawdo/blinky/internal/app"
 	"github.com/bawdo/blinky/internal/exitcode"
 )
 
 // Execute runs the CLI. The returned int is the process exit code.
 func Execute() int {
-	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer cancel()
-	err := newRootCmd().ExecuteContext(ctx)
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+	// After the first signal, restore the default handler so a second
+	// Ctrl-C quits at once even if a stick is not responding.
+	go func() {
+		<-ctx.Done()
+		stop()
+	}()
+	err := newRootCmd(app.Options{}).ExecuteContext(ctx)
 	return classifyError(err)
 }
 
@@ -25,14 +33,22 @@ func classifyError(err error) int {
 	return exitcode.From(err)
 }
 
-func newRootCmd() *cobra.Command {
+func newRootCmd(opts app.Options) *cobra.Command {
+	a := app.NewWithOptions(opts)
 	root := &cobra.Command{
 		Use:           "blinky",
-		Short:         "(add a short description)",
+		Short:         "Control BlinkStick Nano and Square LEDs",
 		SilenceUsage:  true,
 		SilenceErrors: false,
 	}
-	root.AddCommand(newVersionCmd())
+	root.SetFlagErrorFunc(func(_ *cobra.Command, err error) error {
+		return fmt.Errorf("%w: %w", exitcode.ErrInvalidArgs, err)
+	})
+	root.AddCommand(
+		newVersionCmd(),
+		newListCmd(a),
+		newInfoCmd(a),
+	)
 	applyHelpBareword(root)
 	return root
 }
