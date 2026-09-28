@@ -48,6 +48,9 @@ func newRootCmd(opts app.Options) *cobra.Command {
 		newVersionCmd(),
 		newListCmd(a),
 		newInfoCmd(a),
+		newColourCmd(a, "colour", false),
+		newColourCmd(a, "color", true),
+		newOffCmd(a),
 	)
 	applyHelpBareword(root)
 	return root
