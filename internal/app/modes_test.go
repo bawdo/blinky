@@ -122,3 +122,22 @@ func TestModesReportDisconnectedSticks(t *testing.T) {
 		t.Errorf("err %v stderr %q", err, errb.String())
 	}
 }
+
+func TestLimit(t *testing.T) {
+	cases := []struct {
+		repeats         int
+		cycle, duration time.Duration
+		want            time.Duration
+	}{
+		{3, time.Second, 0, 3 * time.Second},
+		{0, time.Second, 0, 0},
+		{0, time.Second, 5 * time.Second, 5 * time.Second},
+		{3, time.Second, 2 * time.Second, 2 * time.Second},
+		{3, time.Second, 5 * time.Second, 3 * time.Second},
+	}
+	for _, tc := range cases {
+		if got := limit(tc.repeats, tc.cycle, tc.duration); got != tc.want {
+			t.Errorf("limit(%d, %v, %v) = %v, want %v", tc.repeats, tc.cycle, tc.duration, got, tc.want)
+		}
+	}
+}
