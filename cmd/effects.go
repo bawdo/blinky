@@ -8,7 +8,6 @@ import (
 
 	"github.com/bawdo/blinky/internal/app"
 	"github.com/bawdo/blinky/internal/colour"
-	"github.com/bawdo/blinky/internal/exitcode"
 	"github.com/bawdo/blinky/internal/settings"
 	"github.com/bawdo/blinky/internal/target"
 )
@@ -119,9 +118,6 @@ func newMorphCmd(a *app.App) *cobra.Command {
 	c.Flags().IntVar(&m.Repeats, "repeats", 0, "round trips with --loop, 0 for until stopped")
 	durationFlag(c, &m.Duration, "duration", 0, "stop after this long, 0 for no limit")
 	c.RunE = func(cmd *cobra.Command, args []string) error {
-		if cmd.Flags().Changed("repeats") && !m.Loop {
-			return exitcode.Invalid("--repeats can only be used with --loop")
-		}
 		set, err := l.settings()
 		if err != nil {
 			return err
