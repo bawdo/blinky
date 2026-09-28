@@ -6,6 +6,16 @@ import (
 	"testing"
 )
 
+func TestInvalidWrapsErrInvalidArgs(t *testing.T) {
+	err := Invalid("brightness %d, want 0 to 100", 200)
+	if !errors.Is(err, ErrInvalidArgs) {
+		t.Errorf("Invalid(...) = %v, want it to wrap ErrInvalidArgs", err)
+	}
+	if want := "invalid arguments: brightness 200, want 0 to 100"; err.Error() != want {
+		t.Errorf("Invalid(...).Error() = %q, want %q", err.Error(), want)
+	}
+}
+
 func TestFromMapping(t *testing.T) {
 	cases := []struct {
 		name string

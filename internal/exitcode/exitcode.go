@@ -7,7 +7,10 @@
 // and document additions in README.md.
 package exitcode
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 // Sentinel errors. Add new ones here AND extend the switch in From below
 // AND document the new code in README.md.
@@ -18,6 +21,11 @@ var (
 	ErrBusy         = errors.New("busy")
 	ErrPartial      = errors.New("partial failure")
 )
+
+// Invalid returns an ErrInvalidArgs error with a formatted detail message.
+func Invalid(format string, args ...any) error {
+	return fmt.Errorf("%w: %s", ErrInvalidArgs, fmt.Sprintf(format, args...))
+}
 
 // From maps an error to its documented exit code:
 //
