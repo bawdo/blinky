@@ -37,12 +37,15 @@ The CLI promises a stable exit-code contract. Sentinels live in
 `internal/exitcode`; wrap with `fmt.Errorf("%w: ...", exitcode.ErrXxx, detail)`
 and `cmd/root.go` translates to the right code.
 
-| Code | Sentinel                  | Meaning                              |
-|------|---------------------------|--------------------------------------|
-| 0    | (nil error)               | success                              |
-| 1    | (unwrapped error)         | generic failure                      |
-| 2    | `exitcode.ErrInvalidArgs` | invalid arguments / bad user input   |
-| 3    | `exitcode.ErrPrerequisite`| prerequisite missing (env/dep/state) |
+| Code | Sentinel                   | Meaning                                                  |
+|------|----------------------------|----------------------------------------------------------|
+| 0    | (nil error)                | success, including a stop by Ctrl-C or `--duration`      |
+| 1    | (unwrapped error)          | generic failure                                          |
+| 2    | `exitcode.ErrInvalidArgs`  | invalid arguments / bad user input                       |
+| 3    | `exitcode.ErrPrerequisite` | prerequisite missing (env/dep/state)                     |
+| 4    | `exitcode.ErrNotFound`     | no sticks attached, or `--device` matched nothing        |
+| 5    | `exitcode.ErrBusy`         | another program holds a stick you asked for              |
+| 6    | `exitcode.ErrPartial`      | a group command worked on some sticks and failed on others |
 
 Add codes by extending `internal/exitcode/exitcode.go` and updating both
 this table and the test in `internal/exitcode/exitcode_test.go`.
