@@ -20,16 +20,16 @@ or `go install github.com/bawdo/blinky@latest`.
 ## Quick start
 
 ```
-blinky list                          # what is plugged in, and the ID to use for each
-blinky colour red                    # the only stick goes red
-blinky colour -a red blue            # every stick: first half red, second half blue
-blinky pulse -d desk vivid           # breathe a random bright colour on the stick named desk
+blinky list                                            # what is plugged in, and the ID to use for each
+blinky colour red                                      # the only stick goes red
+blinky colour -a red blue                              # every stick: first half red, second half blue
+blinky pulse -d desk vivid                             # breathe a random bright colour on the stick named desk
 blinky blink green --on-time 1s --off-time 2s          # lit 1s, dark 2s, three times
 blinky blink green --second-colour yellow --repeats 0  # green, yellow, until Ctrl-C
 blinky morph green --from-colour yellow                # fade yellow to green
 blinky morph green --from-colour yellow --loop         # back and forth until Ctrl-C
-blinky police -a --duration 30s      # red and blue for 30 seconds
-blinky disco -a                      # until Ctrl-C
+blinky police -a --duration 30s                        # red and blue for 30 seconds
+blinky disco -a                                        # until Ctrl-C
 blinky off -a
 ```
 
