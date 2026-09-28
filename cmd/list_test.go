@@ -61,3 +61,16 @@ func TestDeviceCompletion(t *testing.T) {
 		t.Errorf("got %v", got)
 	}
 }
+
+func TestDeviceCompletionOffersSerialForUnsafeName(t *testing.T) {
+	ctl := sticktest.New(sticktest.Nano("BS072777-3.0", "bad\tname"))
+	got := complete(t, opts(ctl), "info", "-d", "")
+	if !slices.Contains(got, "BS072777-3.0") {
+		t.Errorf("got %v, want serial BS072777-3.0 offered", got)
+	}
+	for _, c := range got {
+		if strings.Contains(c, "bad") {
+			t.Errorf("got %v, raw unsafe name must not be offered", got)
+		}
+	}
+}
