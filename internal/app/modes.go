@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"math"
 	"math/rand/v2"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/bawdo/blinky/internal/exitcode"
 	"github.com/bawdo/blinky/internal/render"
 	"github.com/bawdo/blinky/internal/settings"
+	"github.com/bawdo/blinky/internal/stick"
 	"github.com/bawdo/blinky/internal/target"
 )
 
@@ -85,14 +87,36 @@ func (a *App) run(ctx context.Context, req target.Request, set settings.Settings
 	if err != nil {
 		return err
 	}
+	return a.render(ctx, infos, set, duration, constant(e))
+}
+
+// constant is a build func for an effect that does not depend on the
+// sticks.
+func constant(e effect.Effect) func([]opened) (effect.Effect, error) {
+	return func([]opened) (effect.Effect, error) { return e, nil }
+}
+
+// render opens infos, builds the effect from the sticks that opened, and
+// renders it until ctx ends or duration passes, then turns the LEDs off.
+// A build error fails every stick.
+func (a *App) render(ctx context.Context, infos []stick.Info, set settings.Settings, duration time.Duration,
+	build func([]opened) (effect.Effect, error)) error {
 	return a.session(infos, &set, func(sticks []opened) []error {
+		errs := make([]error, len(sticks))
+		built, err := build(sticks)
+		if err != nil {
+			for j := range errs {
+				errs[j] = err
+			}
+			return errs
+		}
 		sinks := make([]effect.Sink, len(sticks))
 		pos := make([]int, len(sticks))
 		for j, o := range sticks {
 			sinks[j] = o.st
 			pos[j] = o.pos
 		}
-		e := posEffect{Effect: e, pos: pos}
+		e := posEffect{Effect: built, pos: pos}
 		runner := effect.Runner{Duration: duration, Clock: a.clock, OnEvent: func(ev effect.Event) {
 			id := render.Sanitise(sticks[ev.Sink].info.ID())
 			switch ev.Kind {
@@ -102,14 +126,28 @@ func (a *App) run(ctx context.Context, req target.Request, set settings.Settings
 				_, _ = fmt.Fprintf(a.err, "%s: reconnected\n", id)
 			}
 		}}
-		errs := runner.Run(ctx, e, sinks)
-		for j, o := range sticks {
-			if errs[j] != nil {
-				errs[j] = libError(errs[j])
+		for j, err := range runner.Run(ctx, e, sinks) {
+			if err != nil {
+				errs[j] = libError(err)
 				continue
 			}
-			errs[j] = libError(o.st.Off())
+			errs[j] = libError(sticks[j].st.Off())
 		}
 		return errs
 	})
+}
+
+// limit is how long a run of repeats cycles lasts, capped by duration.
+// 0 on either side means no limit from that side. An absurd repeats count
+// that would overflow the multiplication is treated as no limit from that
+// side, rather than wrapping to a short or negative duration.
+func limit(repeats int, cycle, duration time.Duration) time.Duration {
+	if repeats > 0 && cycle > 0 && int64(repeats) > math.MaxInt64/int64(cycle) {
+		return duration
+	}
+	l := time.Duration(repeats) * cycle
+	if l == 0 || (duration > 0 && duration < l) {
+		return duration
+	}
+	return l
 }

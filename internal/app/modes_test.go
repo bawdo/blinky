@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"math"
 	"reflect"
 	"strings"
 	"testing"
@@ -120,5 +121,26 @@ func TestModesReportDisconnectedSticks(t *testing.T) {
 	err := a.Police(context.Background(), all, full, PoliceOptions{Period: time.Second, Duration: 100 * ms})
 	if exitcode.From(err) != 6 || !strings.Contains(errb.String(), "desk: disconnected, retrying") {
 		t.Errorf("err %v stderr %q", err, errb.String())
+	}
+}
+
+func TestLimit(t *testing.T) {
+	cases := []struct {
+		repeats         int
+		cycle, duration time.Duration
+		want            time.Duration
+	}{
+		{3, time.Second, 0, 3 * time.Second},
+		{0, time.Second, 0, 0},
+		{0, time.Second, 5 * time.Second, 5 * time.Second},
+		{3, time.Second, 2 * time.Second, 2 * time.Second},
+		{3, time.Second, 5 * time.Second, 3 * time.Second},
+		{math.MaxInt, time.Second, 0, 0},
+		{math.MaxInt, time.Second, 5 * time.Second, 5 * time.Second},
+	}
+	for _, tc := range cases {
+		if got := limit(tc.repeats, tc.cycle, tc.duration); got != tc.want {
+			t.Errorf("limit(%d, %v, %v) = %v, want %v", tc.repeats, tc.cycle, tc.duration, got, tc.want)
+		}
 	}
 }

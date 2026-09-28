@@ -6,8 +6,10 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 
 	"github.com/bawdo/blinky/internal/app"
+	"github.com/bawdo/blinky/internal/colour"
 	"github.com/bawdo/blinky/internal/exitcode"
 	"github.com/bawdo/blinky/internal/settings"
 	"github.com/bawdo/blinky/internal/target"
@@ -92,4 +94,34 @@ func addJSONFlag(c *cobra.Command, p *bool) {
 func durationFlag(c *cobra.Command, p *time.Duration, name string, def time.Duration, usage string) {
 	c.Flags().DurationVar(p, name, def, usage)
 	_ = c.RegisterFlagCompletionFunc(name, completeDurations)
+}
+
+// colourFlag adds a colour flag with colour completion. The same name
+// spelt "color" also works but stays out of help.
+func colourFlag(c *cobra.Command, p *string, name, usage string) {
+	c.Flags().StringVar(p, name, "", usage)
+	c.Flags().SetNormalizeFunc(colourSpelling)
+	_ = c.RegisterFlagCompletionFunc(name, colourCompleter(0))
+}
+
+// colourSpelling reads a flag name ending in "-color" as ending in
+// "-colour" instead, so a flag such as --second-color still works.
+func colourSpelling(_ *pflag.FlagSet, name string) pflag.NormalizedName {
+	if strings.HasSuffix(name, "-color") {
+		name = strings.TrimSuffix(name, "-color") + "-colour"
+	}
+	return pflag.NormalizedName(name)
+}
+
+// optionalColour parses the colour flag name, or returns nil if it was not
+// set.
+func optionalColour(c *cobra.Command, name, value string) (*colour.Spec, error) {
+	if !c.Flags().Changed(name) {
+		return nil, nil
+	}
+	spec, err := colour.Parse(value)
+	if err != nil {
+		return nil, err
+	}
+	return &spec, nil
 }
