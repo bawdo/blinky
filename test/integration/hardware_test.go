@@ -60,6 +60,10 @@ func TestHardwareColourRoundTrip(t *testing.T) {
 		if err != nil {
 			t.Fatalf("%s: %v", i.Serial, err)
 		}
+		t.Cleanup(func() {
+			_ = st.Off()
+			_ = st.Close()
+		})
 		want := colour.Frame(specs, i.LEDs, r)
 		if err := st.SetFrame(want); err != nil {
 			t.Fatalf("%s: %v", i.Serial, err)
@@ -68,8 +72,6 @@ func TestHardwareColourRoundTrip(t *testing.T) {
 		if err != nil || !slices.Equal(got, want) {
 			t.Errorf("%s: read %v, %v; want %v", i.Serial, got, err, want)
 		}
-		_ = st.Off()
-		_ = st.Close()
 	}
 }
 
