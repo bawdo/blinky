@@ -69,8 +69,9 @@ evenly.
 | `completion <shell>` | shell completion script |
 | `version` | print the blinky version, commit and tag |
 
-Commands that write LEDs take `--brightness <0-100>` and `--inverse`. Animated commands take
-`--duration` (0 means until stopped). Ctrl-C or `--duration` running out turns the LEDs off.
+Commands that write LEDs take `--brightness <0-100>` and `--inverse`. Most animated commands take
+`--duration` (0 means until stopped); `morph`'s `--duration` is how long the fade takes instead.
+Ctrl-C or `--duration` running out turns the LEDs off.
 Reads take `--json`. `name` and `info-block` write EEPROM, which wears out with heavy use.
 
 ## Shell completion
@@ -119,7 +120,7 @@ and `cmd/root.go` translates to the right code.
 | 1    | (unwrapped error)          | generic failure                                          |
 | 2    | `exitcode.ErrInvalidArgs`  | invalid arguments / bad user input                       |
 | 3    | `exitcode.ErrPrerequisite` | prerequisite missing (env/dep/state)                     |
-| 4    | `exitcode.ErrNotFound`     | no sticks attached, or `--device` matched nothing        |
+| 4    | `exitcode.ErrNotFound`     | no sticks attached, `--device` matched nothing, or a name is on two sticks |
 | 5    | `exitcode.ErrBusy`         | another program holds a stick you asked for              |
 | 6    | `exitcode.ErrPartial`      | a group command worked on some sticks and failed on others |
 

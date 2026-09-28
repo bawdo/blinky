@@ -2,12 +2,16 @@
 //
 // Convention: cmd/ files are thin (Cobra wiring, flag parsing,
 // delegation). All business logic - validation, I/O, state mutation -
-// lives here so it can be unit-tested without spinning up Cobra. A cmd
+// lives here so it can be unit-tested without spinning up Cobra. The App
+// is built once, in newRootCmd, and each command closes over it. A cmd
 // function should look like:
 //
-//	RunE: func(cmd *cobra.Command, args []string) error {
-//	    a := app.New()
-//	    return a.DoTheThing(cmd.Context(), parseInput(args))
+//	func newThingCmd(a *app.App) *cobra.Command {
+//	    c := &cobra.Command{ /* ... */ }
+//	    c.RunE = func(cmd *cobra.Command, args []string) error {
+//	        return a.DoTheThing(cmd.Context(), parseInput(args))
+//	    }
+//	    return c
 //	}
 //
 // Errors returned from App methods that wrap an exitcode sentinel
