@@ -16,8 +16,11 @@ concurrency:
 
 jobs:
   test:
-    name: Test
+    name: Test (Go ${{ matrix.go }})
     runs-on: macos-latest
+    strategy:
+      matrix:
+        go: ['1.26.x', '1.27.x']
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,7 +28,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25.x'
+          go-version: ${{ matrix.go }}
           check-latest: true
           cache: true
 
@@ -45,7 +48,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25.x'
+          go-version: '1.26.x'
           check-latest: true
           cache: true
 
@@ -74,7 +77,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25.x'
+          go-version: '1.26.x'
           check-latest: true
           cache: true
 
@@ -104,16 +107,17 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25.x'
+          go-version: '1.26.x'
           check-latest: true
           cache: true
 
       - name: Run govulncheck
         run: go run golang.org/x/vuln/cmd/govulncheck@latest ./...
 
+  # macOS: go-blinkstick does not support Linux yet. With no stick attached the hardware tests skip.
   integration:
     name: Integration Tests
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -121,7 +125,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25.x'
+          go-version: '1.26.x'
           check-latest: true
           cache: true
 
@@ -140,7 +144,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25.x'
+          go-version: '1.26.x'
           check-latest: true
           cache: true
 

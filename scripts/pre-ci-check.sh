@@ -102,13 +102,13 @@ check_go_version() {
     GO_VERSION=$(go version | awk '{print $3}')
     echo "Detected: $GO_VERSION"
 
-    # blinky requires Go 1.25+ (see go.mod). Regex covers 1.25 through
+    # blinky requires Go 1.26+ (see go.mod). Regex covers 1.26 through
     # 1.99 to avoid spurious warnings when the toolchain is upgraded.
-    if [[ "$GO_VERSION" =~ go1\.(2[5-9]|[3-9][0-9])\. ]]; then
+    if [[ "$GO_VERSION" =~ go1\.(2[6-9]|[3-9][0-9])\. ]]; then
         record_result "Go Version" "PASS" ""
-        echo -e "${GREEN}✓ Go version meets blinky requirement (1.25+)${NC}"
+        echo -e "${GREEN}✓ Go version meets blinky requirement (1.26+)${NC}"
     else
-        VERSION_WARNING="blinky requires Go 1.25+, you have $GO_VERSION"
+        VERSION_WARNING="blinky requires Go 1.26+, you have $GO_VERSION"
         record_result "Go Version" "PASS" ""
         echo -e "${YELLOW}⚠ Warning: $VERSION_WARNING${NC}"
     fi
@@ -221,7 +221,7 @@ check_coverage() {
         NO_TESTS_YET=true
         COVERAGE="0.0"
         record_result "Coverage Generation" "PASS" ""
-        echo -e "${YELLOW}⚠ No tests yet — coverage check skipped${NC}"
+        echo -e "${YELLOW}⚠ No tests yet, coverage check skipped${NC}"
         echo -e "  Coverage target gate suppressed for this run."
         return 0
     fi
@@ -342,7 +342,7 @@ check_cli_smoke() {
         return 1
     fi
 
-    # First line is "blinky <version>" — assert that shape rather than
+    # First line is "blinky <version>": assert that shape rather than
     # a specific version string so the check survives any tag.
     if head -1 "$TMPBIN/smoke.log" | grep -q '^blinky '; then
         record_result "CLI Smoke" "PASS" ""
@@ -427,7 +427,7 @@ generate_report() {
     fi
 
     echo ""
-    echo "Detailed logs saved in: coverage/pre-ci-*.txt  (checks 1–9)"
+    echo "Detailed logs saved in: coverage/pre-ci-*.txt  (checks 1 to 9)"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 }
 

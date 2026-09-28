@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bawdo/blinky/internal/app"
 	"github.com/bawdo/blinky/internal/version"
 )
 
@@ -83,7 +84,7 @@ func TestVersionCommandOmitsCommitAndTagWhenUnknown(t *testing.T) {
 
 func runVersionCmd(t *testing.T) string {
 	t.Helper()
-	root := newRootCmd()
+	root := newRootCmd(app.Options{})
 	root.SetArgs([]string{"version"})
 	var out, errBuf bytes.Buffer
 	root.SetOut(&out)

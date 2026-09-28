@@ -11,11 +11,9 @@
 .idea/
 .vscode/
 
-# Claude/Superpowers (local notes only - specs and plans ARE tracked)
+# Claude/Superpowers (local only, including specs and plans)
 .superpowers/
-docs/superpowers/*
-!docs/superpowers/specs/
-!docs/superpowers/plans/
+docs/superpowers/
 .claude/
 
 # Git worktrees
