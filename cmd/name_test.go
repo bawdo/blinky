@@ -35,6 +35,17 @@ func TestNameCommandRejects(t *testing.T) {
 	}
 }
 
+func TestNameCommandRejectsEmptyArgument(t *testing.T) {
+	ctl := twoSticks()
+	res := run(t, opts(ctl), "name", "-d", "desk", "")
+	if res.code != 2 {
+		t.Fatalf("exit %d err %q, want 2", res.code, res.err)
+	}
+	if got := ctl.Stick("BS072777-3.0").StoredName(); got != "desk" {
+		t.Errorf("stored %q, want unchanged", got)
+	}
+}
+
 func TestInfoBlockCommand(t *testing.T) {
 	ctl := twoSticks()
 	if res := run(t, opts(ctl), "info-block", "-d", "desk", "2", "--hex", "6869"); res.code != 0 {
@@ -63,6 +74,17 @@ func TestInfoBlockCommandRejects(t *testing.T) {
 		if res := run(t, opts(twoSticks()), args...); res.code != 2 {
 			t.Errorf("%v: exit %d, want 2", args, res.code)
 		}
+	}
+}
+
+func TestInfoBlockCommandRejectsEmptyArgument(t *testing.T) {
+	ctl := twoSticks()
+	res := run(t, opts(ctl), "info-block", "-d", "desk", "2", "")
+	if res.code != 2 {
+		t.Fatalf("exit %d err %q, want 2", res.code, res.err)
+	}
+	if got := ctl.Stick("BS072777-3.0").Stored(2); len(got) != 0 {
+		t.Errorf("stored %q, want unchanged", got)
 	}
 }
 

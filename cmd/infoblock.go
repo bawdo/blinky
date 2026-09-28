@@ -43,6 +43,8 @@ func newInfoBlockCmd(a *app.App) *cobra.Command {
 			return exitcode.Invalid("--json only applies when reading")
 		case isHex && !writing:
 			return exitcode.Invalid("--hex only applies when writing")
+		case len(args) == 2 && args[1] == "":
+			return exitcode.Invalid("data is empty, use --clear to remove it")
 		case clearBlock:
 			return a.SetInfoBlock(t.request(), n, "", false)
 		case len(args) == 2:

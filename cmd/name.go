@@ -29,6 +29,8 @@ func newNameCmd(a *app.App) *cobra.Command {
 			return exitcode.Invalid("give a name or --clear, not both")
 		case asJSON && (clearName || len(args) > 0):
 			return exitcode.Invalid("--json only applies when reading")
+		case len(args) == 1 && args[0] == "":
+			return exitcode.Invalid("name is empty, use --clear to remove it")
 		case clearName:
 			return a.SetName(t.request(), "")
 		case len(args) == 1:
