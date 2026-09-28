@@ -65,7 +65,7 @@ evenly.
 | `off` | turn LEDs off |
 | `blink <colour>` | `--period 1s --repeats 3`, `--on-time`, `--off-time`, `--second-colour <colour>` |
 | `pulse <colour>` | `--period 2s --repeats 3` |
-| `morph <colour>` | `--fade 1s`, `--from-colour <colour>`, `--loop`, `--repeats 0` |
+| `morph <colour>` | `--fade 1s`, `--from-colour <colour>`, `--loop`, `--repeats 0` (with `--loop`) |
 | `disco [<colour>...]` | `--min-period 200ms --max-period 2s --max-gap 1s` |
 | `police` | `--period 1s`, `--alternate` |
 | `name [<name>]` | read or set a stick's name. `--clear` removes it |
