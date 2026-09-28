@@ -116,7 +116,7 @@ func newMorphCmd(a *app.App) *cobra.Command {
 		if err != nil {
 			return err
 		}
-		return a.Morph(cmd.Context(), t.request(), set, spec, d)
+		return a.Morph(cmd.Context(), t.request(), set, spec, app.MorphOptions{Fade: d})
 	}
 	return c
 }

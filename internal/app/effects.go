@@ -124,19 +124,114 @@ func (a *App) repeat(ctx context.Context, req target.Request, set settings.Setti
 	})
 }
 
-// Morph fades the chosen sticks from their current colours to spec over d.
-func (a *App) Morph(ctx context.Context, req target.Request, set settings.Settings, spec colour.Spec, d time.Duration) error {
-	if d < 0 {
+// MorphOptions controls morph.
+type MorphOptions struct {
+	From     *colour.Spec  // nil means start from what the LEDs show
+	Fade     time.Duration // one fade
+	Loop     bool          // fade back and forth
+	Repeats  int           // round trips with Loop; 0 means until stopped
+	Duration time.Duration // stop after this long; 0 means no limit
+}
+
+func (m MorphOptions) check() error {
+	switch {
+	case m.Fade < 0:
+		return exitcode.Invalid("--fade must not be negative")
+	case m.Repeats < 0:
+		return exitcode.Invalid("--repeats must not be negative")
+	case m.Duration < 0:
 		return exitcode.Invalid("--duration must not be negative")
+	case m.Repeats > 0 && !m.Loop:
+		return exitcode.Invalid("--repeats needs --loop")
+	case m.Loop && m.Fade == 0:
+		return exitcode.Invalid("--fade must be more than 0 with --loop")
+	}
+	return nil
+}
+
+// Morph fades the chosen sticks to spec over m.Fade, from m.From if set.
+// Without Loop the LEDs stay on spec; with Loop they fade back and forth
+// until stopped, then turn off.
+func (a *App) Morph(ctx context.Context, req target.Request, set settings.Settings, spec colour.Spec, m MorphOptions) error {
+	if err := m.check(); err != nil {
+		return err
 	}
 	infos, _, err := a.resolve(req, target.Group)
 	if err != nil {
 		return err
 	}
-	colours := pickEach(spec, len(infos))
+	to := pickEach(spec, len(infos))
+	var from []blinkstick.RGB
+	if m.From != nil {
+		from = pickEach(*m.From, len(infos))
+	}
+	if m.Loop {
+		return a.loop(ctx, infos, set, from, to, m)
+	}
+	if m.Duration > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, m.Duration)
+		defer cancel()
+	}
 	return a.each(infos, &set, func(o opened) error {
-		return finish(o.st, o.st.Morph(ctx, colours[o.pos], d))
+		if from != nil {
+			if err := o.st.SetFrame(fill(o.st.LEDs(), from[o.pos])); err != nil {
+				return libError(err)
+			}
+		}
+		return finish(o.st, o.st.Morph(ctx, to[o.pos], m.Fade))
 	})
+}
+
+// loop fades each stick between its starting frame and to until stopped.
+func (a *App) loop(ctx context.Context, infos []stick.Info, set settings.Settings, from, to []blinkstick.RGB, m MorphOptions) error {
+	return a.render(ctx, infos, set, limit(m.Repeats, 2*m.Fade, m.Duration), func(sticks []opened) (effect.Effect, error) {
+		frames := make([][]blinkstick.RGB, len(infos))
+		for _, o := range sticks {
+			frames[o.pos] = startFrame(o, from, set)
+		}
+		return effect.NewLoop(m.Fade, frames, to)
+	})
+}
+
+// startFrame is the frame a loop starts from on o: the --from-colour if
+// given, otherwise what o shows. What o shows is already dimmed by the
+// brightness limit, so it is undimmed here to stop the runner dimming it
+// again. A stick that cannot be read starts dark.
+func startFrame(o opened, from []blinkstick.RGB, set settings.Settings) []blinkstick.RGB {
+	if from != nil {
+		return []blinkstick.RGB{from[o.pos]}
+	}
+	shown, err := o.st.Frame()
+	if err != nil {
+		return nil
+	}
+	lim := set.Limit()
+	for i, c := range shown {
+		shown[i] = unscale(c, lim)
+	}
+	return shown
+}
+
+// unscale reverses a brightness limit: the smallest colour that lim dims
+// to c. A limit of 0 gives black.
+func unscale(c blinkstick.RGB, lim uint8) blinkstick.RGB {
+	if lim == 0 {
+		return blinkstick.RGB{}
+	}
+	f := func(v uint8) uint8 {
+		return uint8(min((int(v)*255+int(lim)-1)/int(lim), 255)) //nolint:gosec // G115: clamped to 255
+	}
+	return blinkstick.RGB{R: f(c.R), G: f(c.G), B: f(c.B)}
+}
+
+// fill returns n LEDs of colour c.
+func fill(n int, c blinkstick.RGB) []blinkstick.RGB {
+	out := make([]blinkstick.RGB, n)
+	for i := range out {
+		out[i] = c
+	}
+	return out
 }
 
 // pickEach picks spec once per stick, so random and vivid differ per stick.
