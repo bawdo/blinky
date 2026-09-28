@@ -7,25 +7,29 @@ LDFLAGS := -X github.com/bawdo/blinky/internal/version.Version=$(VERSION) \
            -X github.com/bawdo/blinky/internal/version.Tag=$(TAG) \
            -X github.com/bawdo/blinky/internal/version.Dirty=$(DIRTY)
 
-build:
+build: ## Build the blinky binary into bin/ with version info embedded.
 	go build -ldflags "$(LDFLAGS)" -o bin/blinky .
 
-install:
+install: ## Install blinky into your Go bin directory with version info embedded.
 	go install -ldflags "$(LDFLAGS)" .
 
-test:
+test: ## Run the unit test suite.
 	go test ./...
 
-lint:
+lint: ## Run golangci-lint over the codebase.
 	golangci-lint run
 
-integration:
+integration: ## Run the integration tests (needs the integration build tag).
 	go test -tags integration -v ./test/integration/...
 
-pre-ci:
+pre-ci: ## Run the full set of local pre-CI quality checks before pushing.
 	./scripts/pre-ci-check.sh
 
-pre-ci-fix:
+pre-ci-fix: ## Auto-fix gofmt issues, then run the pre-CI quality checks.
 	./scripts/pre-ci-check.sh --fix gofmt
 
-.PHONY: build install test integration lint pre-ci pre-ci-fix
+help: ## List all make targets with a short description.
+	@grep -E '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | \
+		awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
+
+.PHONY: build install test integration lint pre-ci pre-ci-fix help
