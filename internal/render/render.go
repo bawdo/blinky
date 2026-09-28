@@ -60,14 +60,16 @@ func Table(w io.Writer, header []string, rows [][]string) error {
 // Fields writes title, then one indented "Label:" line per pair with the
 // values aligned two spaces after the widest label.
 func Fields(w io.Writer, title string, pairs [][2]string) error {
+	labels := make([]string, len(pairs))
 	width := 0
-	for _, p := range pairs {
-		width = max(width, runewidth.StringWidth(p[0])+1)
+	for i, p := range pairs {
+		labels[i] = Sanitise(p[0]) + ":"
+		width = max(width, runewidth.StringWidth(labels[i]))
 	}
 	var b strings.Builder
 	b.WriteString(Sanitise(title) + "\n")
-	for _, p := range pairs {
-		label := Sanitise(p[0]) + ":"
+	for i, p := range pairs {
+		label := labels[i]
 		b.WriteString("  " + label + strings.Repeat(" ", width-runewidth.StringWidth(label)+2) + Sanitise(p[1]) + "\n")
 	}
 	_, err := io.WriteString(w, b.String())

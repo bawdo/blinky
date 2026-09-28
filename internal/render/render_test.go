@@ -88,6 +88,19 @@ func TestFieldsAlignsValues(t *testing.T) {
 	}
 }
 
+func TestFieldsHandlesControlCharacterLabel(t *testing.T) {
+	var b bytes.Buffer
+	err := Fields(&b, "desk", [][2]string{{"a\x1b", "v"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := "desk\n" +
+		"  a\\x1b:  v\n"
+	if b.String() != want {
+		t.Errorf("got:\n%q\nwant:\n%q", b.String(), want)
+	}
+}
+
 func TestJSONIndentsAndKeepsEmptyArrays(t *testing.T) {
 	var b bytes.Buffer
 	if err := JSON(&b, []int{}); err != nil {
