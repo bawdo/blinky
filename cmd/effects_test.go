@@ -114,6 +114,17 @@ func TestMorphLoopCommand(t *testing.T) {
 	}
 }
 
+func TestMorphDurationMeansStopAfterNotFade(t *testing.T) {
+	ctl := twoSticks()
+	res := run(t, opts(ctl), "morph", "-d", "desk", "blue", "--duration", "5s")
+	if res.code != 0 {
+		t.Fatalf("exit %d err %q", res.code, res.err)
+	}
+	if got := ctl.Stick("BS072777-3.0").Calls(); !slices.Equal(got, []string{"morph #0000ff 1s"}) {
+		t.Errorf("calls %v", got)
+	}
+}
+
 func TestMorphRejectsRepeatsWithoutLoop(t *testing.T) {
 	if res := run(t, opts(twoSticks()), "morph", "-d", "desk", "red", "--repeats", "2"); res.code != 2 {
 		t.Errorf("exit %d, want 2", res.code)
