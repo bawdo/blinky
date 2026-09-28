@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bawdo/blinky/internal/app"
 	"github.com/bawdo/blinky/internal/stick/sticktest"
 )
 
@@ -59,6 +60,18 @@ func TestDeviceCompletion(t *testing.T) {
 	}
 	if got := complete(t, opts(twoSticks()), "info", "-d", "de"); !slices.Equal(got, []string{"desk"}) {
 		t.Errorf("got %v", got)
+	}
+}
+
+func TestDeviceCompletionSanitisesSerialInDescription(t *testing.T) {
+	ctl := sticktest.New(sticktest.Nano("BS\x1b[31m", ""))
+	a := app.NewWithOptions(opts(ctl))
+	comps, _ := completeDevices(a)(nil, nil, "")
+	for _, c := range comps {
+		_, desc, _ := strings.Cut(c, "\t")
+		if strings.Contains(desc, "\x1b") {
+			t.Errorf("unsanitised description %q", c)
+		}
 	}
 }
 

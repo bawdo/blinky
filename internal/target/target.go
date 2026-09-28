@@ -115,7 +115,7 @@ func find(sticks []stick.Info, id string) (stick.Info, error) {
 		var busy []string
 		for _, s := range sticks {
 			if s.Status == stick.StatusBusy {
-				busy = append(busy, s.Serial)
+				busy = append(busy, render.Sanitise(s.Serial))
 			}
 		}
 		if len(busy) > 0 {
@@ -127,7 +127,7 @@ func find(sticks []stick.Info, id string) (stick.Info, error) {
 	}
 	serials := make([]string, len(named))
 	for i, s := range named {
-		serials[i] = s.Serial
+		serials[i] = render.Sanitise(s.Serial)
 	}
 	return stick.Info{}, fmt.Errorf("%w: %s is the name of %d sticks (%s), use a serial",
 		exitcode.ErrNotFound, shown, len(named), strings.Join(serials, ", "))
@@ -135,7 +135,7 @@ func find(sticks []stick.Info, id string) (stick.Info, error) {
 
 func drivable(s stick.Info) (stick.Info, error) {
 	if s.Status == stick.StatusUnsupported {
-		return stick.Info{}, fmt.Errorf("%s is a model blinky cannot drive", s.Serial)
+		return stick.Info{}, fmt.Errorf("%w: %s is a model blinky cannot drive", exitcode.ErrInvalidArgs, render.Sanitise(s.Serial))
 	}
 	return s, nil
 }

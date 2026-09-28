@@ -31,7 +31,7 @@ func completeDevices(a *app.App) cobra.CompletionFunc {
 				id = i.Serial
 			}
 			if strings.HasPrefix(id, toComplete) {
-				out = append(out, cobra.CompletionWithDesc(id, i.Model+" "+i.Serial))
+				out = append(out, cobra.CompletionWithDesc(id, i.Model+" "+render.Sanitise(i.Serial)))
 			}
 		}
 		return out, cobra.ShellCompDirectiveNoFileComp

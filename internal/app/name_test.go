@@ -75,6 +75,15 @@ func TestSetNameRefuses(t *testing.T) {
 	}
 }
 
+func TestSetNameDuplicateErrorSanitisesOtherSerial(t *testing.T) {
+	ctl := sticktest.New(sticktest.Nano("BS\x1b[31m", "desk"), sticktest.Nano("BS2", ""))
+	a, _, _ := newTestApp(ctl)
+	err := a.SetName(dev("BS2"), "desk")
+	if exitcode.From(err) != 2 || strings.Contains(err.Error(), "\x1b") {
+		t.Errorf("err %v", err)
+	}
+}
+
 func TestSetNameOnABusyStick(t *testing.T) {
 	a, _, _ := newTestApp(sticktest.New(sticktest.Busy(sticktest.Nano("BS1", ""))))
 	if err := a.SetName(dev("BS1"), "desk"); exitcode.From(err) != 5 {

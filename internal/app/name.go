@@ -86,7 +86,7 @@ func validateName(name string, self stick.Info, all []stick.Info) error {
 	}
 	for _, other := range all {
 		if other.Serial != self.Serial && other.Name == name {
-			return exitcode.Invalid("%s is already named %s, names must be unique", other.Serial, render.Sanitise(name))
+			return exitcode.Invalid("%s is already named %s, names must be unique", render.Sanitise(other.Serial), render.Sanitise(name))
 		}
 	}
 	return nil
