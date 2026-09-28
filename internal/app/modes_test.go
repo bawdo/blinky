@@ -11,6 +11,8 @@ import (
 
 	"github.com/bawdo/blinky/internal/colour"
 	"github.com/bawdo/blinky/internal/exitcode"
+	"github.com/bawdo/blinky/internal/stick/sticktest"
+	"github.com/bawdo/blinky/internal/target"
 )
 
 const ms = time.Millisecond
@@ -37,6 +39,26 @@ func TestPoliceAlternate(t *testing.T) {
 	first := ctl.Stick("BS073788-3.1").Frames()[0]
 	if first[0] != (blinkstick.RGB{B: 255}) || first[7] != (blinkstick.RGB{}) {
 		t.Errorf("second stick not swapped: %v", first)
+	}
+}
+
+func TestPoliceAlternateUsesSerialPositionNotOpenedIndex(t *testing.T) {
+	// Serial order: desk (pos 0), shelf (pos 1, busy so never opened),
+	// square (pos 2). --alternate must swap by serial position, so square
+	// (an even position) must not swap even though it is the second stick
+	// the runner actually opens.
+	ctl := sticktest.New(sticktest.Nano("BS072777-3.0", "desk"),
+		sticktest.Busy(sticktest.Nano("BS073000-3.0", "shelf")),
+		sticktest.Square("BS073788-3.1", ""))
+	a, _, _ := newTestApp(ctl)
+	err := a.Police(context.Background(), target.Request{All: true}, full,
+		PoliceOptions{Period: time.Second, Duration: 20 * ms, Alternate: true})
+	if exitcode.From(err) != 6 { // shelf is busy, so this is a partial failure
+		t.Fatalf("err %v", err)
+	}
+	first := ctl.Stick("BS073788-3.1").Frames()[0]
+	if first[0] != (blinkstick.RGB{}) || first[7] != (blinkstick.RGB{B: 255}) {
+		t.Errorf("square (serial position 2) swapped: %v", first)
 	}
 }
 

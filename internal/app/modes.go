@@ -62,6 +62,19 @@ func (a *App) Police(ctx context.Context, req target.Request, set settings.Setti
 	return a.run(ctx, req, set, p, o.Duration)
 }
 
+// posEffect maps a sink index from its place among the sticks the Runner
+// actually opened onto its place in the resolved (serial-ordered) list,
+// so a sink-aware effect such as --alternate keeps serial order even when
+// a busy stick in between was skipped.
+type posEffect struct {
+	effect.Effect
+	pos []int
+}
+
+func (p posEffect) Frame(sink, leds int, t time.Duration) []blinkstick.RGB {
+	return p.Effect.Frame(p.pos[sink], leds, t)
+}
+
 // run renders e on every chosen stick until ctx ends or duration passes,
 // then turns the LEDs off.
 func (a *App) run(ctx context.Context, req target.Request, set settings.Settings, e effect.Effect, duration time.Duration) error {
@@ -74,9 +87,12 @@ func (a *App) run(ctx context.Context, req target.Request, set settings.Settings
 	}
 	return a.session(infos, &set, func(sticks []opened) []error {
 		sinks := make([]effect.Sink, len(sticks))
+		pos := make([]int, len(sticks))
 		for j, o := range sticks {
 			sinks[j] = o.st
+			pos[j] = o.pos
 		}
+		e := posEffect{Effect: e, pos: pos}
 		runner := effect.Runner{Duration: duration, Clock: a.clock, OnEvent: func(ev effect.Event) {
 			id := render.Sanitise(sticks[ev.Sink].info.ID())
 			switch ev.Kind {
