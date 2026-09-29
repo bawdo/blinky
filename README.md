@@ -6,7 +6,7 @@ affiliated with Agile Innovative.
 
 ## Requirements
 
-- macOS. Linux will follow go-blinkstick.
+- macOS or Linux.
 - Go 1.26 or later, with cgo. Install the Xcode command line tools with `xcode-select --install`.
 
 ## Install
@@ -30,6 +30,7 @@ blinky morph green --from-colour yellow                # fade yellow to green
 blinky morph green --from-colour yellow --loop         # back and forth until Ctrl-C
 blinky police -a --duration 30s                        # red and blue for 30 seconds
 blinky disco -a                                        # until Ctrl-C
+blinky disco vivid -a                                  # until Ctrl-C
 blinky off -a
 ```
 
@@ -178,4 +179,3 @@ make install
   `internal/settings`, so command line flags always take precedence.
 - **Daemon mode.** A background process that owns the sticks, reached through a client that
   implements `stick.Controller`, so settings persist and effects can change while running.
-- **Linux**, once go-blinkstick supports it.
