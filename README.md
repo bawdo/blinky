@@ -7,7 +7,7 @@ affiliated with Agile Innovative.
 ## Requirements
 
 - macOS or Linux.
-- Go 1.26 or later, with cgo. Install the Xcode command line tools with `xcode-select --install`.
+- Go 1.26 or later, with cgo. If you are on MacOS you will also need to nstall the Xcode command line tools with `xcode-select --install`.
 
 ## Install
 
