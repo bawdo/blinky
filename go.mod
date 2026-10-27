@@ -3,10 +3,10 @@ module github.com/bawdo/blinky
 go 1.26
 
 require (
-	github.com/bawdo/go-blinkstick v0.3.0
-	github.com/mattn/go-runewidth v0.0.30
+	github.com/bawdo/go-blinkstick v0.5.0
+	github.com/mattn/go-runewidth v0.0.31
 	github.com/spf13/cobra v1.10.2
-	github.com/spf13/pflag v1.0.9
+	github.com/spf13/pflag v1.0.10
 )
 
 require (
