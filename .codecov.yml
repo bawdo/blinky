@@ -5,10 +5,19 @@ coverage:
 
   status:
     project:
+      # Floor: project coverage must stay at or above 85%. Measured coverage
+      # was 90.6% locally on 2026-10-28.
       default:
-        target: 80%
+        target: 85%
         threshold: 0.5%
-        informational: true
+        informational: false
+        if_ci_failed: error
+      # Ratchet: a change may not drop coverage more than 1% below its base,
+      # even while still above the floor.
+      no-regression:
+        target: auto
+        threshold: 1%
+        informational: false
         if_ci_failed: error
 
     patch:
