@@ -10,7 +10,7 @@ affiliated with Agile Innovative.
 ## Requirements
 
 - macOS or Linux.
-- Go 1.26 or later, with cgo. If you are on MacOS you will also need to nstall the Xcode command line tools with `xcode-select --install`.
+- Go 1.26 or later, with cgo. If you are on MacOS you will also need to install the Xcode command line tools with `xcode-select --install`.
 
 ## Install
 
@@ -174,6 +174,12 @@ Install a local build into `$GOBIN`:
 ```
 make install
 ```
+
+## Contributing
+
+Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for how changes
+land. Report security problems privately, as [SECURITY.md](SECURITY.md) describes, not as a
+public issue.
 
 ## TODO
 
