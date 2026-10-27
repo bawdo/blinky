@@ -1,5 +1,8 @@
 # blinky
 
+[![CI](https://github.com/bawdo/blinky/actions/workflows/ci.yml/badge.svg)](https://github.com/bawdo/blinky/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/bawdo/blinky/graph/badge.svg)](https://codecov.io/gh/bawdo/blinky)
+
 A command line tool to control and manage BlinkStick Nano and Square LEDs, one stick or many at
 once. Built on [go-blinkstick](https://github.com/bawdo/go-blinkstick). Unofficial, and not
 affiliated with Agile Innovative.
