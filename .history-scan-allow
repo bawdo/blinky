@@ -1,0 +1,6 @@
+# Accepted hits for scripts/history-scan.sh: email:<address> or
+# blob:<path>:<pattern name>. Lines starting with # are ignored.
+email:keith@bawdo.com
+email:keith@arrix.com.au
+# GitHub's committer identity on web-merged pull requests.
+email:noreply@github.com
