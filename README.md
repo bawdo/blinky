@@ -169,6 +169,21 @@ Auto-fix formatting along the way:
 make pre-ci-fix
 ```
 
+Check for outdated dependencies (needs `jq`):
+
+```
+make outdated
+```
+
+`make outdated` (`scripts/outdated.sh`) lists direct Go modules with a newer release, plus any
+that are deprecated or retracted. It also reports the tool versions Dependabot cannot bump:
+golangci-lint as pinned in `.github/workflows/ci.yml`, govulncheck as pinned by `VULN_VERSION` in
+both `ci.yml` and the `Makefile` (with a warning if the two disagree), and the Go release line CI
+builds with. Releases younger than `COOLDOWN_DAYS` (default 7, as in `dependabot.yml`) are marked
+too fresh and left out of "all". On a terminal it then offers to upgrade all, pick, or none. An
+upgrade runs `go get`, `go mod tidy`, `go build` and `go test`, then shows the `go.mod` diff. It
+never commits, and tool pins are report only.
+
 Install a local build into `$GOBIN`:
 
 ```

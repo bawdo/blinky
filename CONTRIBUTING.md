@@ -21,6 +21,9 @@ through [SECURITY.md](SECURITY.md), not the issue tracker.
 
 `scripts/history-scan.sh` is run before anything is pushed to a public remote.
 
+To bump dependencies, `make outdated` reports what is behind (modules and
+CI tool pins) and can upgrade modules for you. It needs `jq`.
+
 Commits are signed and written in the past tense, with a subject of 60
 characters or fewer. Use Australian English in prose (licence, behaviour,
 organise).
