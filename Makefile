@@ -29,6 +29,9 @@ vuln: ## Run govulncheck over the module, pinned to VULN_VERSION.
 integration: ## Run the integration tests (needs the integration build tag).
 	go test -tags integration -v ./test/integration/...
 
+outdated: ## Report outdated modules and CI tool pins, offer upgrades.
+	./scripts/outdated.sh
+
 pre-ci: ## Run the full set of local pre-CI quality checks before pushing.
 	./scripts/pre-ci-check.sh
 
@@ -42,4 +45,4 @@ help: ## List all make targets with a short description.
 	@grep -E '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
 
-.PHONY: build install test test-scripts integration lint vuln pre-ci pre-ci-fix help
+.PHONY: build install test test-scripts integration lint vuln outdated pre-ci pre-ci-fix help
